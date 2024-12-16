@@ -92,7 +92,7 @@
         form {
             display: flex;
             flex-direction: column;
-            gap: 15px; /* Consistent Spacing */
+            gap: 15px;
             margin-top: 10px;
         }
 
@@ -118,7 +118,7 @@
         .buttons {
             display: flex;
             flex-direction: column;
-            gap: 15px; /* Uniform Spacing */
+            gap: 15px;
             width: 100%;
         }
 
@@ -176,15 +176,16 @@
         <form action="{{ url_for('start_game') }}" method="POST">
             <input type="text" name="name" placeholder="Enter Your Name" required>
             <select name="difficulty" required>
-                <option value="Easy">Easy</option>
-                <option value="Medium" selected>Medium</option>
-                <option value="Hard">Hard</option>
+                <option value="Easy" {% if settings.difficulty == 'Easy' %}selected{% endif %}>Easy</option>
+                <option value="Medium" {% if settings.difficulty == 'Medium' %}selected{% endif %}>Medium</option>
+                <option value="Hard" {% if settings.difficulty == 'Hard' %}selected{% endif %}>Hard</option>
             </select>
 
             <!-- Buttons -->
             <div class="buttons">
                 <button type="submit" class="btn">Start Game</button>
                 <button type="button" class="btn" onclick="window.location.href='settings'">Settings</button>
+                <button type="button" class="btn" onclick="window.location.href='leaderboard?difficulty=Medium'">Leaderboard</button>
                 <button type="button" class="btn" onclick="exitGame()">Exit</button>
             </div>
         </form>

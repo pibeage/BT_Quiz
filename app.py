@@ -65,6 +65,10 @@ def home():
     if not start_sound_played:
         session['start_sound_played'] = True  # Set to True after first load
 
+    # Ensure default difficulty is set in the session if missing
+    if 'difficulty' not in session:
+        session['difficulty'] = 'Medium'
+
     settings = get_user_settings()
     return render_template(
         "index.html",
@@ -79,6 +83,7 @@ def home():
 def start_game():
     name = request.form['name']
     difficulty = request.form['difficulty']
+    session['difficulty'] = difficulty  # Update difficulty in session
     questions = load_questions(difficulty)
 
     if not questions:
@@ -86,7 +91,6 @@ def start_game():
         return redirect(url_for('home'))
 
     session['name'] = name
-    session['difficulty'] = difficulty
     session['score'] = 0
     session['question_index'] = 0
     session['questions'] = questions
@@ -143,9 +147,16 @@ def game_over():
         'game_over.html',
         score=score,
         leaderboard=current_leaderboard,
-        best_score=best_hard_score,
-        sounds_enabled=session.get('sounds_enabled', True)
+        best_score=max([entry['score'] for entry in current_leaderboard], default=0),
+        difficulty=difficulty
     )
+
+# Leaderboard Route
+@app.route('/leaderboard', methods=['GET'])
+def show_leaderboard():
+    difficulty = request.args.get('difficulty', 'Medium')  # Default to Medium difficulty
+    filtered_leaderboard = [entry for entry in leaderboard if entry['difficulty'] == difficulty]
+    return render_template('leaderboard.html', leaderboard=filtered_leaderboard, current_difficulty=difficulty)
 
 # Settings Route
 @app.route('/settings', methods=['GET', 'POST'])
