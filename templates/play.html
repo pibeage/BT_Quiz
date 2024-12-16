@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Play - BlackToe Running Quiz</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        /* Global Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* Body and Background */
+        body, html {
+            height: 100%;
+            font-family: 'Roboto', sans-serif;
+            background-color: #000;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            overflow: hidden;
+        }
+
+        body::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('https://i.imgur.com/LNwbBoj.png') repeat;
+            opacity: 0.1;
+            animation: starsMove 100s linear infinite;
+            z-index: -1;
+        }
+
+        @keyframes starsMove {
+            from { background-position: 0 0; }
+            to { background-position: 10000px 10000px; }
+        }
+
+        /* Container */
+        .container {
+            background: rgba(30, 30, 30, 0.95);
+            border: 1px solid #444;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+            padding: 30px 20px;
+            width: 90%;
+            max-width: 600px;
+            animation: fadeIn 1s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        /* Question */
+        .question-text {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: white; 
+            margin-bottom: 20px;
+            text-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
+        }
+
+        /* Timer */
+        .timer {
+            font-size: 1.2rem;
+            color: #ffcc00;
+            margin-bottom: 20px;
+        }
+
+        /* Answer Options */
+        .answer-option {
+            display: block;
+            width: 100%;
+            background: #222;
+            color: white;
+            border: 2px solid #444;
+            border-radius: 8px;
+            padding: 12px 0;
+            margin: 10px 0;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .answer-option:hover {
+            background-color: #f5a623;
+            color: #000;
+            transform: scale(1.05);
+            box-shadow: 0 0 15px rgba(245, 166, 35, 0.8);
+        }
+
+        .answer-option.correct {
+            background: #00FF00;
+            color: black;
+            box-shadow: 0 0 15px #00FF00;
+        }
+
+        .answer-option.incorrect {
+            background: #FF0000;
+            color: black;
+            box-shadow: 0 0 15px #FF0000;
+        }
+
+        /* Next Button */
+        .next-button {
+            display: none;
+            width: 100%;
+            padding: 12px 0;
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #000;
+            background: #fff;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+        }
+
+        .next-button:hover {
+            background-color: #f5a623;
+            color: #000;
+            box-shadow: 0 5px 20px rgba(245, 166, 35, 0.6);
+            transform: scale(1.05);
+        }
+
+        /* Footer */
+        footer {
+            position: absolute;
+            bottom: 10px;
+            font-size: 0.9rem;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Question -->
+        <div class="question-text">{{ question.question }}</div>
+
+        <!-- Timer -->
+        {% if settings.timer_enabled %}
+        <div class="timer" id="timer">Time Left: {{ settings.timer_duration }}s</div>
+        {% endif %}
+
+        <!-- Answer Options -->
+        <form id="answer-form" action="{{ url_for('submit_answer') }}" method="POST">
+            {% for option in question.options %}
+                <button type="button" class="answer-option" onclick="selectAnswer(this, '{{ option }}', '{{ question.correct }}')">
+                    {{ option }}
+                </button>
+            {% endfor %}
+            <input type="hidden" name="answer" id="selected-answer">
+            <button type="submit" id="next-button" class="next-button">Next Question</button>
+        </form>
+    </div>
+
+    <!-- Footer -->
+    <footer>BlackToe Running Quiz &copy; 2024</footer>
+
+    <!-- JavaScript -->
+    <script>
+        let timerDuration = {{ settings.timer_duration }};
+        const timerEnabled = {{ 'true' if settings.timer_enabled else 'false' }};
+        const timerElement = document.getElementById('timer');
+        const nextButton = document.getElementById('next-button');
+        const answerForm = document.getElementById('answer-form');
+        let timer;
+
+        const correctSound = new Audio('{{ url_for("static", filename="sounds/correct.wav") }}');
+        const incorrectSound = new Audio('{{ url_for("static", filename="sounds/incorrect.wav") }}');
+
+        // Start Timer if Enabled
+        function startTimer() {
+            if (timerEnabled) {
+                timer = setInterval(() => {
+                    if (timerDuration <= 0) {
+                        clearInterval(timer);
+                        timerElement.textContent = "Time's up!";
+                        disableOptions();
+                        showNextButton();
+                    } else {
+                        timerElement.textContent = `Time Left: ${timerDuration}s`;
+                        timerDuration--;
+                    }
+                }, 1000);
+            }
+        }
+
+        // Select Answer and Show Feedback
+        function selectAnswer(button, answer, correctAnswer) {
+            clearInterval(timer);
+            document.querySelectorAll('.answer-option').forEach(option => {
+                option.disabled = true;
+                if (option.textContent.trim() === correctAnswer.trim()) {
+                    option.classList.add('correct');
+                }
+                if (option === button && button.textContent.trim() !== correctAnswer.trim()) {
+                    option.classList.add('incorrect');
+                }
+            });
+
+            if (answer === correctAnswer) {
+                correctSound.play();
+            } else {
+                incorrectSound.play();
+            }
+
+            document.getElementById('selected-answer').value = answer;
+            showNextButton();
+        }
+
+        // Disable All Options
+        function disableOptions() {
+            document.querySelectorAll('.answer-option').forEach(option => option.disabled = true);
+        }
+
+        // Show Next Button
+        function showNextButton() {
+            nextButton.style.display = 'block';
+        }
+
+        startTimer();
+    </script>
+</body>
+</html>

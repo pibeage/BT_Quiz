@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BlackToe Running Quiz</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        /* Global Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* Body and Background */
+        body, html {
+            height: 100%;
+            font-family: 'Roboto', sans-serif;
+            background-color: #000;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Starry Background Animation */
+        body::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('https://i.imgur.com/LNwbBoj.png') repeat;
+            opacity: 0.1;
+            animation: starsMove 120s linear infinite;
+            z-index: -1;
+        }
+
+        @keyframes starsMove {
+            from { background-position: 0 0; }
+            to { background-position: 10000px 10000px; }
+        }
+
+        /* Main Container */
+        .container {
+            width: 90%;
+            max-width: 600px;
+            background: rgba(20, 20, 20, 0.95);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+            border: 2px solid #444;
+            animation: fadeIn 1s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Logo */
+        .logo {
+            width: 100%;
+            max-width: 400px;
+            margin-bottom: 10px;
+            animation: pulse 2s infinite alternate;
+        }
+
+        @keyframes pulse {
+            from { transform: scale(1); }
+            to { transform: scale(1.05); }
+        }
+
+        /* Expert Info */
+        .expert-info {
+            font-size: 1.2rem;
+            font-weight: 500;
+            color: #ccc;
+            margin-bottom: 20px;
+        }
+
+        .expert-info strong {
+            color: #f5a623;
+        }
+
+        /* Input Fields */
+        input[type="text"], select {
+            width: 100%;
+            padding: 12px;
+            font-size: 1rem;
+            color: #fff;
+            background: #222;
+            border: 2px solid #555;
+            border-radius: 8px;
+            text-align: center;
+            transition: all 0.3s ease;
+            outline: none;
+        }
+
+        input[type="text"]:focus, select:focus {
+            border-color: #f5a623;
+            box-shadow: 0 0 10px rgba(245, 166, 35, 0.8);
+        }
+
+        /* Buttons */
+        .buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 12px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #000;
+            background-color: #fff;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            text-transform: uppercase;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(255, 255, 255, 0.2);
+        }
+
+        .btn:hover {
+            background-color: #f5a623;
+            color: #000;
+            transform: scale(1.05);
+            box-shadow: 0 10px 25px rgba(245, 166, 35, 0.7);
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        /* Footer */
+        footer {
+            position: absolute;
+            bottom: 10px;
+            width: 100%;
+            font-size: 0.9rem;
+            color: #888;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Logo -->
+        <img src="{{ url_for('static', filename='images/blacktoe_logo.png') }}" alt="BlackToe Logo" class="logo">
+
+        <!-- Expert Info -->
+        {% if best_player and best_score %}
+        <div class="expert-info">
+            The current expert is <strong>{{ best_player }}</strong> with <strong>{{ best_score }}</strong> points
+        </div>
+        {% endif %}
+
+        <!-- Form -->
+        <form action="{{ url_for('start_game') }}" method="POST">
+            <input type="text" name="name" placeholder="Enter Your Name" required>
+            <select name="difficulty" required>
+                <option value="Easy">Easy</option>
+                <option value="Medium" selected>Medium</option>
+                <option value="Hard">Hard</option>
+            </select>
+
+            <!-- Buttons -->
+            <div class="buttons">
+                <button type="submit" class="btn">Start Game</button>
+                <button type="button" class="btn" onclick="window.location.href='settings'">Settings</button>
+                <button type="button" class="btn" onclick="exitGame()">Exit</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Footer -->
+    <footer>BlackToe Running Quiz &copy; 2024</footer>
+
+    <!-- JavaScript -->
+    <script>
+        function exitGame() {
+            window.close();
+        }
+
+        // Play sound only once on the first load
+        const soundPlayed = sessionStorage.getItem('soundPlayed');
+        if (!soundPlayed) {
+            const audio = new Audio('{{ url_for("static", filename="sounds/start.wav") }}');
+            audio.play();
+            sessionStorage.setItem('soundPlayed', 'true');
+        }
+    </script>
+</body>
+</html>

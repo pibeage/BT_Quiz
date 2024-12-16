@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings - BlackToe Running Quiz</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        /* Global Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* Black Background and Layout */
+        body, html {
+            height: 100%;
+            font-family: 'Roboto', sans-serif;
+            background-color: #000;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            overflow: hidden;
+        }
+
+        /* Container */
+        .container {
+            background: rgba(30, 30, 30, 0.95);
+            border: 1px solid #444;
+            border-radius: 20px;
+            padding: 30px 20px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        /* Header */
+        .header {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 2rem;
+            color: #f5a623;
+            text-shadow: 0 0 8px rgba(245, 166, 35, 0.6);
+            margin-bottom: 20px;
+        }
+
+        /* Setting Items */
+        .setting-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 1.1rem;
+            color: #ddd;
+            margin: 10px 0;
+        }
+
+        .setting-item label {
+            text-align: left;
+        }
+
+        /* Input Fields */
+        input[type="number"], select {
+            width: 120px;
+            padding: 8px;
+            font-size: 1rem;
+            background: #222;
+            color: white;
+            border: 2px solid #444;
+            border-radius: 8px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        input[type="number"]:focus, select:focus {
+            border-color: #f5a623;
+            box-shadow: 0 0 10px rgba(245, 166, 35, 0.7);
+        }
+
+        input[type="number"]:disabled {
+            background: #444;
+            color: #888;
+            cursor: not-allowed;
+        }
+
+        /* Toggle Switch */
+        .toggle {
+            appearance: none;
+            width: 50px;
+            height: 25px;
+            background: #f5a623; /* Timer is ON by default */
+            border-radius: 25px;
+            position: relative;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .toggle:before {
+            content: "";
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 19px;
+            height: 19px;
+            background: white;
+            border-radius: 50%;
+            transform: translateX(25px);
+            transition: transform 0.3s ease;
+        }
+
+        .toggle:not(:checked) {
+            background: #555;
+        }
+
+        .toggle:not(:checked):before {
+            transform: translateX(0);
+        }
+
+        /* Buttons */
+        .buttons {
+            margin-top: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 12px 0;
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #000;
+            background: #fff;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            text-transform: uppercase;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 10px rgba(255, 255, 255, 0.2);
+        }
+
+        .btn:hover {
+            background-color: #f5a623;
+            color: #000;
+            box-shadow: 0 5px 20px rgba(245, 166, 35, 0.7);
+            transform: scale(1.05);
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        /* Footer */
+        footer {
+            position: absolute;
+            bottom: 10px;
+            color: #666;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">Settings</div>
+
+        <!-- Sound Toggle -->
+        <div class="setting-item">
+            <label for="sounds">Enable Sounds</label>
+            <input type="checkbox" id="sounds" class="toggle" checked>
+        </div>
+
+        <!-- Timer Toggle -->
+        <div class="setting-item">
+            <label for="timer">Enable Timer</label>
+            <input type="checkbox" id="timer" class="toggle" checked onchange="toggleTimerDuration()">
+        </div>
+
+        <!-- Timer Duration -->
+        <div class="setting-item">
+            <label for="duration">Time per Question (seconds)</label>
+            <input type="number" id="duration" min="5" max="60" value="20">
+        </div>
+
+        <!-- Difficulty Selection -->
+        <div class="setting-item">
+            <label for="difficulty">Difficulty</label>
+            <select id="difficulty">
+                <option value="Easy">Easy</option>
+                <option value="Medium" selected>Medium</option>
+                <option value="Hard">Hard</option>
+            </select>
+        </div>
+
+        <!-- Buttons -->
+        <div class="buttons">
+            <button class="btn" onclick="saveSettings()">Save Settings</button>
+            <button class="btn" onclick="window.location.href='/'">Back to Home</button>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>BlackToe Running Quiz &copy; 2024</footer>
+
+    <!-- JavaScript -->
+    <script>
+        function toggleTimerDuration() {
+            const timerEnabled = document.getElementById("timer").checked;
+            document.getElementById("duration").disabled = !timerEnabled;
+        }
+
+        function saveSettings() {
+            const soundsEnabled = document.getElementById("sounds").checked;
+            const timerEnabled = document.getElementById("timer").checked;
+            const timerDuration = document.getElementById("duration").value;
+            const difficulty = document.getElementById("difficulty").value;
+
+            fetch('/settings', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    sounds: soundsEnabled,
+                    timer: timerEnabled,
+                    duration: timerDuration,
+                    difficulty: difficulty
+                })
+            }).then(() => {
+                alert('Settings saved successfully!');
+                window.location.href = '/';
+            }).catch(err => console.error('Error saving settings:', err));
+        }
+
+        // Initialize Timer Input State
+        document.addEventListener("DOMContentLoaded", () => {
+            toggleTimerDuration();
+        });
+    </script>
+</body>
+</html>
