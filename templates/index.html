@@ -16,7 +16,7 @@
         /* Body and Background */
         body, html {
             height: 100%;
-            font-family: 'Roboto', sans-serif;
+            font-family: 'Montserrat', sans-serif;
             background-color: #000;
             color: white;
             display: flex;
@@ -88,7 +88,14 @@
             color: #f5a623;
         }
 
-        /* Input Fields */
+        /* Form and Input Styling */
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px; /* Consistent Spacing */
+            margin-top: 10px;
+        }
+
         input[type="text"], select {
             width: 100%;
             padding: 12px;
@@ -111,31 +118,29 @@
         .buttons {
             display: flex;
             flex-direction: column;
-            gap: 15px;
+            gap: 15px; /* Uniform Spacing */
             width: 100%;
-            margin-top: 20px;
         }
 
         .btn {
             width: 100%;
-            padding: 12px;
-            font-size: 1.1rem;
+            padding: 15px;
+            font-size: 1.2rem;
             font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
             color: #000;
             background-color: #fff;
             border: none;
             border-radius: 50px;
             cursor: pointer;
-            text-transform: uppercase;
-            transition: all 0.3s ease;
-            box-shadow: 0 5px 15px rgba(255, 255, 255, 0.2);
+            transition: background-color 0.3s ease, transform 0.3s ease;
         }
 
         .btn:hover {
             background-color: #f5a623;
             color: #000;
             transform: scale(1.05);
-            box-shadow: 0 10px 25px rgba(245, 166, 35, 0.7);
         }
 
         .btn:active {
@@ -149,6 +154,7 @@
             width: 100%;
             font-size: 0.9rem;
             color: #888;
+            text-align: center;
         }
     </style>
 </head>
